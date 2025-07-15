@@ -1810,6 +1810,8 @@ function updateStudentGrid() {
                         }
                     };
                     ref.on('value', handler);
+                    // Refresh the page after activating the next question
+                    setTimeout(() => { location.reload(); }, 500);
                 } else {
                     showMessage('No more questions to activate.', 'info');
                 }
