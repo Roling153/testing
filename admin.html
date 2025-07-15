@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App - Admin Panel</title>
+    <style>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Pane Navigation */
+        .pane-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 20px 30px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Pane Visibility */
+        .pane {
+            display: none;
+            padding: 30px;
+        }
+
+        .pane.active-pane {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            /* Remove transform and box-shadow to prevent button shake */
+            /* transform: translateY(-2px); */
+            /* box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); */
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            padding: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Question Items */
+        .question-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .question-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-item:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .question-item.active {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+
+        .question-item.activated {
+            border-color: #2ecc71;
+            background: #d4edda;
+        }
+
+        .question-preview {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .question-meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Question Editor Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Option Styling */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .option-input input {
+            flex: 1;
+        }
+
+        .option-label {
+            width: 30px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Student Monitor */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .student-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .student-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .student-score {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .student-status {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Live Responses */
+        .live-response-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-response {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .response-answer {
+            background: #e3f2fd;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 0 10px;
+        }
+
+        .response-correct {
+            color: #2ecc71;
+        }
+
+        .response-incorrect {
+            color: #e74c3c;
+        }
+
+        /* Leaderboard */
+        .leaderboard-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .leaderboard-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .leaderboard-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .leaderboard-card .rank {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #667eea;
+            width: 50px;
+        }
+
+        .leaderboard-card .name {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .leaderboard-card .score {
+            font-weight: 700;
+            color: #2ecc71;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pane-tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+        }
+    
+    .question-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .question-square {
+        width: 60px;
+        height: 60px;
+        border: 2px solid #333;
+        background: white;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .question-square.activated {
+        background: #2ecc71;
+        color: black;
+    }
+
+    .question-square.current {
+        background: #f1c40f;
+        color: black;
+    }
+
+    .question-square:hover {
+        transform: scale(1.1);
+    }
+
+    /* Notification Toast */
+    .notification-toast {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        min-width: 250px;
+        max-width: 350px;
+        z-index: 9999;
+        padding: 18px 28px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0.98;
+        transition: opacity 0.3s;
+    }
+    .notification-toast.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .notification-toast.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .notification-toast.info {
+        background: #e3f2fd;
+        color: #155194;
+        border: 1px solid #b6d4fe;
+    }
+    .notification-toast .close-btn {
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 1.3em;
+        font-weight: bold;
+        margin-left: 10px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+    .notification-toast .close-btn:hover {
+        opacity: 1;
+    }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🎯 Quiz Admin Panel</h1>
+      <p>Manage your quiz questions and monitor student progress</p>
+    </div>
+
+    <!-- Tabbed Navigation -->
+    <div class="pane-tabs">
+      <button class="tab-btn active" onclick="switchPane('start')">🚀 Start Quiz</button>
+      <button class="tab-btn" onclick="switchPane('edit')">✏️ Edit Questions</button>
+      <button class="tab-btn" onclick="switchPane('conduct')">🎬 Conduct Quiz</button>
+      <button class="tab-btn" onclick="switchPane('monitor')">🧑‍🎓 Student Monitor</button>
+      <button class="tab-btn" onclick="switchPane('stats')">📊 Stats</button>
+      <button class="tab-btn" onclick="switchPane('leaderboard')">🏆 Leaderboard</button>
+      <button class="tab-btn" onclick="switchPane('teamLeaderboard')">👥 Team Leaderboard</button>
+    </div>
+
+    <div id="activeQuestionDisplay" style="display: none; padding: 20px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; transition: max-height 0.3s, padding 0.3s; overflow: hidden;">
+        <div id="activeQuestionContent" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 id="activeQuestionTitle">Question 1</h3>
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
+                    <span id="activeQuestionTimer" style="color:#e74c3c; font-weight:600;"></span>
+                </div>
+                <p id="activeQuestionText">Question text will appear here</p>
+                <div id="activeQuestionOptions"></div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <button class="btn btn-secondary" onclick="hideActiveQuestion()">Hide</button>
+            </div>
+        </div>
+        <div id="showActiveQuestionBar" style="display:none; justify-content:center; align-items:center; min-height:40px;">
+            <button class="btn btn-secondary" onclick="showActiveQuestion()">Show</button>
+        </div>
+    </div>
+
+    <!-- Pane: Start Quiz -->
+        <div class="pane active-pane" id="startPane">
+        <div class="admin-controls">
+            <div class="control-group">
+            <button class="btn btn-success" id="startQuizBtn" onclick="startQuiz()">
+                <span class="status-indicator status-inactive"></span> Start Quiz
+            </button>
+            <button class="btn btn-danger" id="stopQuizBtn" onclick="stopQuiz()" disabled>
+                Stop Quiz
+            </button>
+            <button class="btn btn-danger" onclick="resetStudentData()">Reset Student Data</button>
+            <button class="btn btn-secondary" onclick="resetQuiz()">Reset All Data</button>
+            <button class="btn" onclick="exportToSheets()">📊 Export to Sheets</button>
+            <button onclick="downloadCSV()" class="btn">📥 Download CSV</button>
+            <button class="btn btn-success" onclick="showAddTeamModal()">Add Team</button>
+            </div>
+            <div id="statusMessage"></div>
+        </div>
+        <div id="teamListSection" style="padding: 20px;">
+    <h3>Teams</h3>
+    <div id="teamList"></div>
+</div>
+
+<!-- Add Team Modal -->
+<div id="addTeamModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:30px; border-radius:10px; min-width:300px; max-width:90vw; margin:auto;">
+    <h3>Add Team</h3>
+    <input type="text" id="newTeamName" placeholder="Enter team name" style="width:100%; padding:10px; margin-bottom:15px;">
+    <div style="text-align:right;">
+      <button class="btn btn-success" onclick="addTeam()">Add</button>
+      <button class="btn btn-secondary" onclick="hideAddTeamModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+        </div>
+
+        <!-- Pane: Edit Questions -->
+        <div class="pane" id="editPane">
+    <div style="padding: 20px; border-bottom: 1px solid #e0e0e0;">
+        <button class="btn btn-success" onclick="addNewQuestion()">+ Add New Question</button>
+    </div>
+    
+    <div style="padding: 20px;">
+        <h3>All Questions</h3>
+        <div id="questionGrid" class="question-grid">
+        <!-- Question squares will appear here -->
+        </div>
+        <div id="questionDetailView" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <!-- Question details will appear here -->
+        </div>
+    </div>
+
+    <div class="section" id="questionEditor" style="display: none;">
+        <h2>Question Editor</h2>
+        <form id="questionForm">
+            <div class="form-group">
+                <label for="questionText">Question Text:</label>
+                <textarea id="questionText" name="questionText" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="questionType">Question Type:</label>
+                <select id="questionType" name="questionType" onchange="toggleQuestionType()">
+                    <option value="single">Single Choice</option>
+                    <option value="multiple">Multiple Choice</option>
+                    <option value="numerical">Numerical Answer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="timeLimit">Time Limit (seconds):</label>
+                <input type="number" id="timeLimit" name="timeLimit" value="30" min="10" max="300" required>
+            </div>
+
+            <!-- Options Container (for single/multiple choice) -->
+            <div class="form-group" id="optionsGroup">
+                <label>Options:</label>
+                <div id="optionsContainer" class="options-container">
+                    <div class="option-input">
+                        <div class="option-label">A</div>
+                        <input type="text" placeholder="Option A">
+                    </div>
+                    <div class="option-input">
+                        <div class="option-label">B</div>
+                        <input type="text" placeholder="Option B">
+                    </div>
+                    <div class="option-input">
+                        <div class="option-label">C</div>
+                        <input type="text" placeholder="Option C">
+                    </div>
+                    <div class="option-input">
+                        <div class="option-label">D</div>
+                        <input type="text" placeholder="Option D">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Choice Correct Answer -->
+            <div class="form-group" id="correctAnswerGroup">
+                <label for="correctAnswer">Correct Answer:</label>
+                <select id="correctAnswer" name="correctAnswer">
+                    <option value="0">A</option>
+                    <option value="1">B</option>
+                    <option value="2">C</option>
+                    <option value="3">D</option>
+                </select>
+            </div>
+
+            <!-- Multiple Choice Correct Answers -->
+            <div class="form-group" id="multipleAnswerGroup" style="display: none;">
+                <label>Correct Answers (select multiple):</label>
+                <div id="multipleAnswers">
+                    <label><input type="checkbox" value="0"> A</label>
+                    <label><input type="checkbox" value="1"> B</label>
+                    <label><input type="checkbox" value="2"> C</label>
+                    <label><input type="checkbox" value="3"> D</label>
+                </div>
+            </div>
+
+            <!-- Numerical Answer -->
+            <div class="form-group" id="numericalAnswerGroup" style="display: none;">
+                <label for="numericalAnswer">Correct Answer:</label>
+                <input type="number" id="numericalAnswer" name="numericalAnswer" step="any">
+            </div>
+
+            <div class="form-group">
+                <button type="button" class="btn btn-success" onclick="saveQuestion()">Save Question</button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+            </div>
+        </form>
+    </div>
+    </div>
+
+    <!-- Pane: Conduct Quiz -->
+    <div class="pane" id="conductPane">
+      <div class="sidebar">
+        <h3>Conduct Quiz</h3>
+        <div class="question-list" id="questionList">
+          <!-- Same ID so JS continues to work -->
+        </div>
+      </div>
+      <div class="section">
+        <h2>Live Responses</h2>
+        <div id="liveResponses">
+          <p>Activate a question to see live responses</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pane: Student Monitor -->
+    <div class="pane" id="monitorPane">
+    <div class="section">
+        <h2>Student Monitor</h2>
+        <div style="margin-bottom: 20px;">
+        <input type="text" id="studentSearch" placeholder="Search roll number..." 
+                onkeyup="searchStudents()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        
+        <div class="student-grid" id="studentGrid">
+        <!-- Loaded Students -->
+        </div>
+        
+        <div id="studentHistory" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <h3>Student History</h3>
+        <div id="studentHistoryContent"></div>
+        <button class="btn btn-secondary" onclick="hideStudentHistory()">Close</button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Pane: Statistics -->
+    <div class="pane" id="statsPane">
+      <div class="section">
+        <h2>Quiz Statistics</h2>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalStudents">0</div>
+            <div class="stat-label">Total Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalQuestions">0</div>
+            <div class="stat-label">Total Questions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="activeQuestion">-</div>
+            <div class="stat-label">Active Question</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="averageScore">0</div>
+            <div class="stat-label">Average Score</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pane: Leaderboard -->
+    <div class="pane" id="leaderboardPane">
+      <div class="section leaderboard-section">
+        <h2 class="leaderboard-title">🏆 Leaderboard</h2>
+        <div id="adminLeaderboard" class="leaderboard-list">
+          <!-- Leaderboard entries -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Pane: Team Leaderboard -->
+    <div class="pane" id="teamLeaderboardPane">
+      <div class="section leaderboard-section">
+        <h2 class="leaderboard-title">👥 Team Leaderboard</h2>
+        <div id="teamLeaderboardList" class="leaderboard-list">
+          <!-- Team leaderboard entries -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Switch Script -->
+  <script>
+    function switchPane(paneId) {
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('active-pane'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(paneId + 'Pane').classList.add('active-pane');
+      document.querySelector(`.tab-btn[onclick="switchPane('${paneId}')"]`).classList.add('active');
+    }
+
+    window.onload = () => switchPane('start');
+  </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration (Replace with your config)
+        const firebaseConfig = {
+        apiKey: "AIzaSyB5RLgd5vMa2BTNrqlEg4ZqjeiyOSZZftQ",
+        authDomain: "testproject1-80fac.firebaseapp.com",
+        databaseURL: "https://testproject1-80fac-default-rtdb.firebaseio.com",
+        projectId: "testproject1-80fac",
+        storageBucket: "testproject1-80fac.firebasestorage.app",
+        messagingSenderId: "921713454709",
+        appId: "1:921713454709:web:4ca9c3c049f6ff91df923c"
+        };
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Global variables
+        let questions = {};
+        let students = {};
+        let currentQuestionId = null;
+        let editingQuestionId = null;
+        let quizActive = false;
+        // Track minimized state
+        let isActiveQuestionMinimized = false;
+
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestions();
+            loadStudents();
+            setupRealtimeListeners();
+            displayActiveQuestion();
+            updateStats();
+        });
+
+        // Setup real-time listeners
+        function setupRealtimeListeners() {
+            // Listen for student changes
+            database.ref('students').on('value', (snapshot) => {
+                students = snapshot.val() || {};
+                updateStudentGrid();
+                updateStats();
+                updateAdminLeaderboard();
+                updateTeamLeaderboard();
+            });
+
+            // Listen for question changes
+            database.ref('questions').on('value', (snapshot) => {
+                questions = snapshot.val() || {};
+                updateQuestionList();
+                updateStats();
+            });
+
+            // Listen for game state changes
+            database.ref('gameState').on('value', (snapshot) => {
+                const gameState = snapshot.val() || {};
+                currentQuestionId = gameState.currentQuestion;
+                quizActive = gameState.active || false;
+                updateQuizControls();
+                updateStats();
+            });
+
+            // Listen for response changes
+            database.ref('responses').on('value', (snapshot) => {
+                const responses = snapshot.val() || {};
+                updateLiveResponses(responses);
+            });
+
+            function updateAdminLeaderboard() {
+                const leaderboardDiv = document.getElementById('adminLeaderboard');
+                if (!students || Object.keys(students).length === 0) {
+                    leaderboardDiv.innerHTML = '<p>No student data available</p>';
+                    return;
+                }
+
+                const sorted = Object.entries(students)
+                    .map(([roll, data]) => ({
+                        roll,
+                        name: data.name || roll,
+                        score: data.score || 0
+                    }))
+                    .sort((a, b) => b.score - a.score);
+
+                leaderboardDiv.innerHTML = sorted.map((student, i) => `
+                    <div class="leaderboard-card">
+                        <div class="rank">#${i + 1}</div>
+                        <div class="name">${student.roll} - ${student.name}</div>
+                        <div class="score">${student.score} pts</div>
+                    </div>
+                `).join('');
+            }
+
+            function updateTeamLeaderboard() {
+                // Build a map of teamKey -> { name, totalScore, members: [student objects] }
+                const teamMap = {};
+                if (!teams || Object.keys(teams).length === 0) {
+                    document.getElementById('teamLeaderboardList').innerHTML = '<p>No teams available</p>';
+                    return;
+                }
+                // Aggregate student scores by team
+                Object.entries(teams).forEach(([teamKey, teamObj]) => {
+                    teamMap[teamKey] = {
+                        name: teamObj.name,
+                        totalScore: 0,
+                        members: []
+                    };
+                });
+                Object.entries(students).forEach(([roll, student]) => {
+                    if (student.team && teamMap[student.team]) {
+                        teamMap[student.team].totalScore += student.score || 0;
+                        teamMap[student.team].members.push(student);
+                    }
+                });
+                // Convert to array and sort by totalScore desc
+                const sortedTeams = Object.values(teamMap).sort((a, b) => b.totalScore - a.totalScore);
+                // Render
+                const teamLeaderboardDiv = document.getElementById('teamLeaderboardList');
+                if (sortedTeams.length === 0) {
+                    teamLeaderboardDiv.innerHTML = '<p>No teams with members yet.</p>';
+                    return;
+                }
+                teamLeaderboardDiv.innerHTML = sortedTeams.map((team, i) => `
+                    <div class="leaderboard-card">
+                        <div class="rank">#${i + 1}</div>
+                        <div class="name">${team.name}</div>
+                        <div class="score">${team.totalScore} pts</div>
+                    </div>
+                `).join('');
+            }
+
+        }
+
+        // Question Management
+        function addNewQuestion() {
+            editingQuestionId = null;
+            clearForm();
+            document.getElementById('questionEditor').style.display = 'block';
+            document.getElementById('questionDetailView').style.display = 'none';
+            document.getElementById('questionText').focus();
+        }
+
+        function saveQuestion() {
+            const questionText = document.getElementById('questionText').value.trim();
+            const questionType = document.getElementById('questionType').value;
+            const timeLimit = parseInt(document.getElementById('timeLimit').value);
+
+            if (!questionText) {
+                showMessage('Please enter question text', 'error');
+                return;
+            }
+
+            let correctAnswer;
+            let options = [];
+
+            if (questionType === 'numerical') {
+                correctAnswer = parseFloat(document.getElementById('numericalAnswer').value);
+                if (isNaN(correctAnswer)) {
+                    showMessage('Please enter a valid numerical answer', 'error');
+                    return;
+                }
+            } else {
+                // Get options for single/multiple choice
+                const optionInputs = document.querySelectorAll('#optionsContainer input');
+                optionInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        options.push(input.value.trim());
+                    }
+                });
+
+                if (options.length < 2) {
+                    showMessage('Please provide at least 2 options', 'error');
+                    return;
+                }
+
+                if (questionType === 'single') {
+                    correctAnswer = parseInt(document.getElementById('correctAnswer').value);
+                    if (isNaN(correctAnswer) || correctAnswer < 0 || correctAnswer >= options.length) {
+                        showMessage('Please select a valid correct answer', 'error');
+                        return;
+                    }
+                } else if (questionType === 'multiple') {
+                    const checkboxes = document.querySelectorAll('#multipleAnswers input[type="checkbox"]:checked');
+                    correctAnswer = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                    if (correctAnswer.length === 0) {
+                        showMessage('Please select at least one correct answer', 'error');
+                        return;
+                    }
+                }
+            }
+
+            // Generate question ID
+            const questionId = editingQuestionId || 'q' + (Object.keys(questions).length + 1);
+            
+            const questionData = {
+            text: questionText,
+            type: questionType,
+            options: options,
+            correctAnswer: correctAnswer,
+            timeLimit: timeLimit,
+            active: false,
+            wasActivated: false,
+            createdAt: new Date().toISOString()
+        };
+
+            // Save to Firebase
+            database.ref('questions/' + questionId).set(questionData)
+                .then(() => {
+                    showMessage('Question saved successfully!', 'success');
+                    clearForm();
+                    editingQuestionId = questionId;
+                })
+                .catch((error) => {
+                    showMessage('Error saving question: ' + error.message, 'error');
+                });
+        }
+
+        function activateQuestion() {
+            if (!editingQuestionId) {
+                showMessage('Please save the question first', 'error');
+                return;
+            }
+
+            // Deactivate all other questions
+            const updates = {};
+            Object.keys(questions).forEach(qId => {
+                updates['questions/' + qId + '/active'] = false;
+            });
+
+            // Activate current question
+            // Activate current question
+            updates['questions/' + editingQuestionId + '/active'] = true;
+            updates['gameState/currentQuestion'] = editingQuestionId;
+            updates['gameState/active'] = true;
+            updates['gameState/questionStartTime'] = Date.now();
+
+            database.ref().update(updates)
+                .then(() => {
+                    showMessage(`Question ${editingQuestionId} activated!`, 'success');
+                    currentQuestionId = editingQuestionId;
+                })
+                .catch((error) => {
+                    showMessage('Error activating question: ' + error.message, 'error');
+                });
+        }
+
+        function editQuestion(questionId) {
+            editingQuestionId = questionId;
+            const question = questions[questionId];
+
+            document.getElementById('questionText').value = question.text;
+            document.getElementById('questionType').value = question.type || 'single';
+            document.getElementById('timeLimit').value = question.timeLimit;
+            document.getElementById('questionEditor').style.display = 'block';
+
+            // First trigger the type change to show correct form fields
+            toggleQuestionType();
+
+            // Then fill the appropriate answer fields based on question type
+            if (question.type === 'numerical') {
+                document.getElementById('numericalAnswer').value = question.correctAnswer;
+            } else if (question.type === 'multiple') {
+                // Clear all checkboxes first
+                const checkboxes = document.querySelectorAll('#multipleAnswers input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = false);
+                
+                // Check the correct answers
+                if (Array.isArray(question.correctAnswer)) {
+                    question.correctAnswer.forEach(answerIndex => {
+                        const checkbox = document.querySelector(`#multipleAnswers input[value="${answerIndex}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+            } else {
+                // Single answer type
+                document.getElementById('correctAnswer').value = question.correctAnswer;
+            }
+
+            // Fill options for single/multiple choice questions
+            if (question.options && question.options.length > 0) {
+                const optionInputs = document.querySelectorAll('#optionsContainer input');
+                question.options.forEach((option, index) => {
+                    if (optionInputs[index]) {
+                        optionInputs[index].value = option;
+                    }
+                });
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('questionForm').reset();
+            document.getElementById('timeLimit').value = 30;
+            document.getElementById('questionType').value = 'single';
+            document.getElementById('numericalAnswer').value = '';
+            
+            // Clear multiple choice checkboxes
+            const checkboxes = document.querySelectorAll('#multipleAnswers input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            
+            // Reset to show single answer form
+            toggleQuestionType();
+            
+            editingQuestionId = null;
+        }
+
+        function toggleQuestionType() {
+            const questionType = document.getElementById('questionType').value;
+            const optionsContainer = document.getElementById('optionsContainer').parentElement;
+            const correctAnswerGroup = document.getElementById('correctAnswerGroup');
+            const multipleAnswerGroup = document.getElementById('multipleAnswerGroup');
+            const numericalAnswerGroup = document.getElementById('numericalAnswerGroup');
+
+            // Hide all groups first
+            optionsContainer.style.display = 'none';
+            correctAnswerGroup.style.display = 'none';
+            multipleAnswerGroup.style.display = 'none';
+            numericalAnswerGroup.style.display = 'none';
+
+            // Show appropriate groups based on question type
+            if (questionType === 'numerical') {
+                numericalAnswerGroup.style.display = 'block';
+                // Make numerical answer required
+                document.getElementById('numericalAnswer').required = true;
+                document.getElementById('correctAnswer').required = false;
+            } else if (questionType === 'multiple') {
+                optionsContainer.style.display = 'block';
+                multipleAnswerGroup.style.display = 'block';
+                document.getElementById('numericalAnswer').required = false;
+                document.getElementById('correctAnswer').required = false;
+            } else {
+                // Single answer type
+                optionsContainer.style.display = 'block';
+                correctAnswerGroup.style.display = 'block';
+                document.getElementById('numericalAnswer').required = false;
+                document.getElementById('correctAnswer').required = true;
+            }
+        }
+
+        function deleteQuestion(questionId) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                database.ref('questions/' + questionId).remove()
+                    .then(() => {
+                        showMessage('Question deleted successfully!', 'success');
+                        if (editingQuestionId === questionId) {
+                            clearForm();
+                        }
+                    })
+                    .catch((error) => {
+                        showMessage('Error deleting question: ' + error.message, 'error');
+                    });
+            }
+        }
+
+        function resetStudentData() {
+            if (confirm('Are you sure you want to reset all student data? This will delete all students and their scores.')) {
+                database.ref('students').remove()
+                    .then(() => {
+                        database.ref('responses').remove();
+                        showMessage('Student data reset successfully!', 'success');
+                    })
+                    .catch((error) => {
+                        showMessage('Error resetting student data: ' + error.message, 'error');
+                    });
+            }
+        }
+
+        // Quiz Control Functions
+        function startQuiz() {
+            const updates = {
+                'gameState/active': true,
+                'gameState/quizActive': true
+            };
+
+            database.ref().update(updates)
+                .then(() => {
+                    showMessage('Quiz started! Students can now see questions when activated.', 'success');
+                    quizActive = true;
+                    updateQuizControls();
+                })
+                .catch((error) => {
+                    showMessage('Error starting quiz: ' + error.message, 'error');
+                });
+        }
+
+        function stopQuiz() {
+            if (confirm('Are you sure you want to stop the entire quiz?')) {
+                const updates = {
+                    'gameState/active': false,
+                    'gameState/quizActive': false,
+                    'gameState/currentQuestion': null,
+                    'gameState/questionStartTime': null
+                };
+
+                // Deactivate all questions
+                Object.keys(questions).forEach(qId => {
+                    updates['questions/' + qId + '/active'] = false;
+                });
+
+                database.ref().update(updates)
+                    .then(() => {
+                        showMessage('Quiz stopped successfully!', 'success');
+                        quizActive = false;
+                        currentQuestionId = null;
+                        updateQuizControls();
+                        hideActiveQuestion();
+                        updateQuestionList();
+                    })
+                    .catch((error) => {
+                        showMessage('Error stopping quiz: ' + error.message, 'error');
+                    });
+            }
+        }
+
+        function resetQuiz() {
+            if (confirm('Are you sure you want to reset all quiz data? This will delete all responses and reset scores.')) {
+                const updates = {
+                    'responses': null,
+                    'gameState': {
+                        active: false,
+                        currentQuestion: null,
+                        questionStartTime: null,
+                        quizActive: false  // ADD THIS - signals students about reset
+                    }
+                };
+
+                // Reset student scores
+                Object.keys(students).forEach(rollNumber => {
+                    updates['students/' + rollNumber + '/score'] = 0;
+                });
+
+                // Reset all questions to initial state
+                Object.keys(questions).forEach(qId => {
+                    updates['questions/' + qId + '/active'] = false;
+                    updates['questions/' + qId + '/wasActivated'] = false;
+                });
+
+                database.ref().update(updates).then(() => {
+                    showMessage('Quiz reset successfully!', 'success');
+                    quizActive = false;
+                    currentQuestionId = null;
+                    updateQuizControls();
+                    
+                    // Clear the active question display
+                    hideActiveQuestion();
+                });
+            }
+        }
+
+        function displayActiveQuestion() {
+            const display = document.getElementById('activeQuestionDisplay');
+            const content = document.getElementById('activeQuestionContent');
+            const showBar = document.getElementById('showActiveQuestionBar');
+            const title = document.getElementById('activeQuestionTitle');
+            const text = document.getElementById('activeQuestionText');
+            const options = document.getElementById('activeQuestionOptions');
+            const timerSpan = document.getElementById('activeQuestionTimer');
+            if (currentQuestionId && questions[currentQuestionId]) {
+                const question = questions[currentQuestionId];
+                title.textContent = `Question ${currentQuestionId.toUpperCase()} - ACTIVE`;
+                text.textContent = question.text;
+                // Show timer
+                if (timerSpan && question.active) {
+                    // Always fetch latest gameState for timer
+                    database.ref('gameState').once('value', (snapshot) => {
+                        const gs = snapshot.val() || {};
+                        if (gs.questionStartTime) {
+                            updateActiveQuestionTimer(gs.questionStartTime, question.timeLimit || 30);
+                        } else {
+                            timerSpan.textContent = '';
+                        }
+                    });
+                } else if (timerSpan) {
+                    timerSpan.textContent = '';
+                }
+                if (question.type === 'numerical') {
+                    options.innerHTML = `
+                        <em>Numerical Answer Required</em>
+                        <p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>
+                        <div style="margin-top: 5px; display: flex; gap: 10px;">
+                            <button class="btn btn-danger" onclick="stopCurrentQuestion()">Stop Question</button>
+                            <button class="btn btn-primary" id="nextQuestionBtn" onclick="activateNextQuestion()">Next Question</button>
+                        </div>
+                    `;
+                } else {
+                    const optionsHtml = question.options.map((opt, i) => 
+                        `<div>${String.fromCharCode(65 + i)}) ${opt}</div>`
+                    ).join('');
+                    
+                    let correctAnswer = '';
+                    if (question.type === 'multiple') {
+                        correctAnswer = `<p><strong>Correct Answers:</strong> ${question.correctAnswer.map(i => String.fromCharCode(65 + i)).join(', ')}</p>`;
+                    } else {
+                        correctAnswer = `<p><strong>Correct Answer:</strong> ${String.fromCharCode(65 + question.correctAnswer)}</p>`;
+                    }
+                    
+                    options.innerHTML = `
+                        ${optionsHtml}
+                        ${correctAnswer}
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="btn btn-danger" onclick="stopCurrentQuestion()">Stop Question</button>
+                            <button class="btn btn-primary" id="nextQuestionBtn" onclick="activateNextQuestion()">Next Question</button>
+                        </div>
+                    `;
+                }
+                
+                display.style.display = 'block';
+                if (isActiveQuestionMinimized) {
+                    display.style.maxHeight = '60px';
+                    display.style.padding = '5px 20px';
+                    if (content) content.style.display = 'none';
+                    if (showBar) showBar.style.display = 'flex';
+                } else {
+                    display.style.maxHeight = '';
+                    display.style.padding = '20px';
+                    if (content) content.style.display = 'flex';
+                    if (showBar) showBar.style.display = 'none';
+                }
+            } else {
+                display.style.display = 'none';
+                if (showBar) showBar.style.display = 'none';
+            }
+
+            database.ref('gameState/currentQuestion').on('value', (snapshot) => {
+    if (snapshot.val()) {
+        setTimeout(displayActiveQuestion, 500);
+    }
+});
+        }
+
+        function stopCurrentQuestion() {
+    if (!currentQuestionId) {
+        showMessage('No active question to stop', 'error');
+        return;
+    }
+    
+    if (confirm('Are you sure you want to stop the current question?')) {
+        const updates = {};
+        
+        // Deactivate the current question
+        updates['questions/' + currentQuestionId + '/active'] = false;
+        
+        // Clear the current question from game state
+        updates['gameState/currentQuestion'] = null;
+        updates['gameState/questionStartTime'] = null;
+        // Keep quiz active, just stop current question
+        updates['gameState/active'] = true;
+        
+        database.ref().update(updates)
+            .then(() => {
+                showMessage('Question stopped successfully!', 'success');
+                currentQuestionId = null;
+                hideActiveQuestion(); // Hide the display
+                updateQuestionList(); // Refresh the question grid
+                
+                // Clear live responses
+                document.getElementById('liveResponses').innerHTML = '<p>No active question</p>';
+            })
+            .catch((error) => {
+                showMessage('Error stopping question: ' + error.message, 'error');
+            });
+    }
+}
+
+
+
+        function hideActiveQuestion() {
+    isActiveQuestionMinimized = true;
+    displayActiveQuestion();
+}
+
+function showActiveQuestion() {
+    isActiveQuestionMinimized = false;
+    displayActiveQuestion();
+}
+
+        // UI Update Functions
+    let questionListUpdateTimeout;
+function updateQuestionList() {
+    // Prevent too many rapid updates
+    if (questionListUpdateTimeout) {
+        clearTimeout(questionListUpdateTimeout);
+    }
+    
+    questionListUpdateTimeout = setTimeout(() => {
+        const questionGrid = document.getElementById('questionGrid');
+        if (!questionGrid) return;
+        
+        questionGrid.innerHTML = '';
+        // Sort question IDs by their numeric suffix
+        const sortedEntries = Object.entries(questions).sort((a, b) => {
+            const nA = parseInt(a[0].replace(/\D/g, ''));
+            const nB = parseInt(b[0].replace(/\D/g, ''));
+            return nA - nB;
+        });
+        sortedEntries.forEach(([questionId, question]) => {
+            const questionSquare = document.createElement('div');
+            questionSquare.className = 'question-square';
+            if (question.wasActivated) {
+                questionSquare.classList.add('activated');
+            }
+            if (question.active && currentQuestionId === questionId) {
+                questionSquare.classList.add('current');
+            }
+            questionSquare.textContent = questionId.replace('q', '');
+            questionSquare.onclick = () => showQuestionDetails(questionId);
+            questionGrid.appendChild(questionSquare);
+        });
+    }, 100); // Wait 100ms before updating
+}
+
+    function showQuestionDetails(questionId) {
+        const question = questions[questionId];
+        const detailView = document.getElementById('questionDetailView');
+        
+        // Hide question editor when showing question details
+        document.getElementById('questionEditor').style.display = 'none';
+        
+        let optionsHtml = '';
+        if (question.type === 'numerical') {
+            optionsHtml = `<p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>`;
+        } else {
+            optionsHtml = question.options.map((opt, i) => 
+                `<p>${String.fromCharCode(65 + i)}) ${opt}</p>`
+            ).join('');
+            
+            if (question.type === 'multiple') {
+                optionsHtml += `<p><strong>Correct Answers:</strong> ${question.correctAnswer.map(i => String.fromCharCode(65 + i)).join(', ')}</p>`;
+            } else {
+                optionsHtml += `<p><strong>Correct Answer:</strong> ${String.fromCharCode(65 + question.correctAnswer)}</p>`;
+            }
+        }
+        
+        detailView.innerHTML = `
+            <h4>Question ${questionId.replace('q', '')}</h4>
+            <p><strong>Question:</strong> ${question.text}</p>
+            <p><strong>Type:</strong> ${question.type}</p>
+            <p><strong>Time Limit:</strong> ${question.timeLimit} seconds</p>
+            ${optionsHtml}
+            <div style="margin-top: 15px;">
+                <button class="btn" onclick="activateQuestionDirect('${questionId}')">Activate</button>
+                <button class="btn" onclick="editQuestion('${questionId}')">Edit</button>
+                <button class="btn btn-danger" onclick="deleteQuestion('${questionId}')">Delete</button>
+            </div>
+        `;
+        
+        detailView.style.display = 'block';
+    }
+
+        function activateQuestionDirect(questionId) {
+            // Deactivate all other questions
+            const updates = {};
+            Object.keys(questions).forEach(qId => {
+                updates['questions/' + qId + '/active'] = false;
+            });
+
+            // Activate selected question and mark as activated
+            updates['questions/' + questionId + '/active'] = true;
+            updates['questions/' + questionId + '/wasActivated'] = true;
+            updates['gameState/currentQuestion'] = questionId;
+            updates['gameState/active'] = true;
+            updates['gameState/quizActive'] = true;  // ADD THIS - signals quiz is active
+            updates['gameState/questionStartTime'] = Date.now();
+
+            database.ref().update(updates)
+                .then(() => {
+                    showMessage(`Question ${questionId} activated!`, 'success');
+                    currentQuestionId = questionId;
+                    quizActive = true;  // Update local state
+                    updateQuizControls();
+                    displayActiveQuestion();  // Show the active question
+                })
+                .catch((error) => {
+                    showMessage('Error activating question: ' + error.message, 'error');
+                });
+        }
+
+
+        let studentGridUpdateTimeout;
+function updateStudentGrid() {
+    // Prevent too many rapid updates
+    if (studentGridUpdateTimeout) {
+        clearTimeout(studentGridUpdateTimeout);
+    }
+    
+    studentGridUpdateTimeout = setTimeout(() => {
+        const studentGrid = document.getElementById('studentGrid');
+        studentGrid.innerHTML = '';
+
+        Object.entries(students).forEach(([rollNumber, student]) => {
+            const studentCard = document.createElement('div');
+            studentCard.className = 'student-card';
+            studentCard.onclick = () => showStudentHistory(rollNumber);
+
+            studentCard.innerHTML = `
+                <div class="student-name">${rollNumber} - ${student.name || ''}</div>
+                <div class="student-score">${student.score || 0} points</div>
+            `;
+
+            studentGrid.appendChild(studentCard);
+        });
+    }, 100); // Wait 100ms before updating
+}
+
+        // ENHANCED updateQuizControls function
+        function updateQuizControls() {
+            const startBtn = document.getElementById('startQuizBtn');
+            const stopBtn = document.getElementById('stopQuizBtn');
+            const statusIndicator = startBtn.querySelector('.status-indicator');
+
+            if (quizActive) {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusIndicator.className = 'status-indicator status-active';
+                startBtn.innerHTML = '<span class="status-indicator status-active"></span> Quiz Active';
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusIndicator.className = 'status-indicator status-inactive';
+                startBtn.innerHTML = '<span class="status-indicator status-inactive"></span> Start Quiz';
+            }
+        }
+           function updateStats() {
+            document.getElementById('totalStudents').textContent = Object.keys(students).length;
+            document.getElementById('totalQuestions').textContent = Object.keys(questions).length;
+            document.getElementById('activeQuestion').textContent = currentQuestionId ? currentQuestionId.toUpperCase() : 'None';
+
+            // Calculate average score
+            const scores = Object.values(students).map(s => s.score || 0);
+            const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+            document.getElementById('averageScore').textContent = averageScore;
+            
+            // Add quiz status
+            const statusElement = document.getElementById('quizStatus');
+            if (statusElement) {
+                statusElement.textContent = quizActive ? 'Active' : 'Inactive';
+                statusElement.className = quizActive ? 'status-active' : 'status-inactive';
+            }
+}
+
+        function searchStudents() {
+            const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+            const studentCards = document.querySelectorAll('.student-card');
+            
+            studentCards.forEach(card => {
+                const rollNumber = card.querySelector('.student-name').textContent.toLowerCase();
+                if (rollNumber.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function showStudentHistory(rollNumber) {
+            const student = students[rollNumber];
+            const historyDiv = document.getElementById('studentHistory');
+            const contentDiv = document.getElementById('studentHistoryContent');
+            
+            // Get student's response history
+            database.ref('responses').once('value', (snapshot) => {
+                const allResponses = snapshot.val() || {};
+                let historyHtml = `<h4>Roll Number: ${rollNumber}</h4><p>Total Score: ${student.score || 0} points</p>`;
+                
+                Object.entries(allResponses).forEach(([questionId, responses]) => {
+                    if (responses[rollNumber]) {
+                        const response = responses[rollNumber];
+                        const question = questions[questionId];
+                        
+                        historyHtml += `
+                            <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px;">
+                                <strong>${questionId.toUpperCase()}:</strong> ${question ? question.text.substring(0, 50) + '...' : 'Question not found'}
+                                <br><strong>Answer:</strong> ${formatAnswerForDisplay(response.answer, question)}
+                                <br><strong>Result:</strong> ${response.correct ? '✓ Correct' : '✗ Incorrect'}
+                            </div>
+                        `;
+                    }
+                });
+                
+                contentDiv.innerHTML = historyHtml;
+                historyDiv.style.display = 'block';
+            });
+        }
+
+        function hideStudentHistory() {
+            document.getElementById('studentHistory').style.display = 'none';
+        }
+
+        function formatAnswerForDisplay(answer, question) {
+            if (!question || question.type === 'numerical') {
+                return answer;
+            }
+            
+            if (Array.isArray(answer)) {
+                // Multiple choice - convert 0-based to 1-based
+                return answer.map(index => String.fromCharCode(65 + index)).join(', ');
+            } else {
+                // Single choice - convert 0-based to 1-based
+                return String.fromCharCode(65 + answer);
+            }
+        }
+
+        function updateLiveResponses(responses) {
+            const liveResponsesDiv = document.getElementById('liveResponses');
+            
+            if (!currentQuestionId) {
+                liveResponsesDiv.innerHTML = '<div class="no-responses">No active question</div>';
+                return;
+            }
+
+            const questionResponses = responses[currentQuestionId] || {};
+            
+            if (Object.keys(questionResponses).length === 0) {
+                liveResponsesDiv.innerHTML = '<div class="no-responses">No responses yet for active question</div>';
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionId];
+            let html = `<h3>Responses for ${currentQuestionId.toUpperCase()}</h3><div class="response-grid">`;
+            
+            Object.entries(questionResponses).forEach(([rollNumber, response]) => {
+                const student = students[rollNumber];
+                const studentName = rollNumber; // Changed from student.name to rollNumber
+                
+                html += `
+                    <div class="live-response-item">
+                        <div class="student-response">${studentName}</div>
+                        <div class="response-answer">${formatAnswerForDisplay(response.answer, currentQuestion)}</div>
+                        <div class="response-status ${response.correct ? 'response-correct' : 'response-incorrect'}">
+                            ${response.correct ? '✓' : '✗'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            liveResponsesDiv.innerHTML = html;
+        }
+
+
+        // Export Functions
+        function exportToSheets() {
+            // This would integrate with Google Sheets API
+            showMessage('Google Sheets export functionality needs to be implemented with proper API keys', 'info');
+            
+            // For now, let's prepare the data
+            const exportData = {
+                students: students,
+                questions: questions,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Export data:', exportData);
+        }
+
+        function downloadCSV() {
+            const csvData = [];
+            csvData.push(['Roll Number', 'Name', 'Score', 'Joined At']);
+
+            Object.entries(students).forEach(([rollNumber, student]) => {
+                csvData.push([
+                    rollNumber,
+                    student.name,
+                    student.score || 0,
+                    student.joinedAt || ''
+                ]);
+            });
+
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'quiz_results_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Teams logic
+        let teams = {};
+
+        function showAddTeamModal() {
+            document.getElementById('addTeamModal').style.display = 'flex';
+            document.getElementById('newTeamName').value = '';
+        }
+        function hideAddTeamModal() {
+            document.getElementById('addTeamModal').style.display = 'none';
+        }
+        function addTeam() {
+            const teamName = document.getElementById('newTeamName').value.trim();
+            if (!teamName) {
+                showMessage('Please enter a team name', 'error');
+                return;
+            }
+            // Add to Firebase
+            const newTeamKey = database.ref('teams').push().key;
+            database.ref('teams/' + newTeamKey).set({ name: teamName })
+                .then(() => {
+                    hideAddTeamModal();
+                    showMessage('Team added!', 'success');
+                })
+                .catch((error) => {
+                    showMessage('Error adding team: ' + error.message, 'error');
+                });
+        }
+        function deleteTeam(teamKey) {
+            if (confirm('Delete this team?')) {
+                database.ref('teams/' + teamKey).remove()
+                    .then(() => showMessage('Team deleted!', 'success'))
+                    .catch((error) => showMessage('Error deleting team: ' + error.message, 'error'));
+            }
+        }
+        function updateTeamListUI() {
+            const teamListDiv = document.getElementById('teamList');
+            if (!teams || Object.keys(teams).length === 0) {
+                teamListDiv.innerHTML = '<p>No teams added yet.</p>';
+                return;
+            }
+            teamListDiv.innerHTML = Object.entries(teams).map(([key, team]) =>
+                `<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0;">
+                    <span>${team.name}</span>
+                    <button class='btn btn-danger' style='padding:4px 12px; font-size:0.9em;' onclick="deleteTeam('${key}')">Delete</button>
+                </div>`
+            ).join('');
+        }
+
+        // Listen for teams in realtime
+        database.ref('teams').on('value', (snapshot) => {
+            teams = snapshot.val() || {};
+            updateTeamListUI();
+            updateTeamLeaderboard();
+        });
+
+        // Helper Functions
+        function loadQuestions() {
+            database.ref('questions').once('value', (snapshot) => {
+                questions = snapshot.val() || {};
+                updateQuestionList();
+            });
+        }
+
+        function loadStudents() {
+            database.ref('students').once('value', (snapshot) => {
+                students = snapshot.val() || {};
+                updateStudentGrid();
+            });
+        }
+
+        // Toast notification with close button
+        function showMessage(message, type) {
+            // Remove any existing toast
+            let toast = document.getElementById('notificationToast');
+            if (toast) toast.remove();
+            toast = document.createElement('div');
+            toast.id = 'notificationToast';
+            toast.className = `notification-toast ${type || 'info'}`;
+            // Message span
+            const msgSpan = document.createElement('span');
+            msgSpan.textContent = message;
+            toast.appendChild(msgSpan);
+            // Close button
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.setAttribute('aria-label', 'Close notification');
+            closeBtn.onclick = () => {
+                toast.style.opacity = '0';
+                setTimeout(() => { toast.remove(); }, 400);
+            };
+            toast.appendChild(closeBtn);
+            document.body.appendChild(toast);
+            // Auto-dismiss after 5s
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => { toast.remove(); }, 400);
+                }
+            }, 5000);
+        }
+
+        // Timer for active question
+        let activeQuestionTimerInterval = null;
+        function updateActiveQuestionTimer(startTime, timeLimit) {
+            const timerSpan = document.getElementById('activeQuestionTimer');
+            if (!timerSpan) return;
+            if (activeQuestionTimerInterval) clearInterval(activeQuestionTimerInterval);
+            function update() {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const left = Math.max(0, timeLimit - elapsed);
+                timerSpan.textContent = `Time Left: ${left}s`;
+                if (left <= 0) {
+                    clearInterval(activeQuestionTimerInterval);
+                    timerSpan.textContent = 'Time Up!';
+                }
+            }
+            update();
+            activeQuestionTimerInterval = setInterval(update, 1000);
+        }
+
+        function activateNextQuestion() {
+            // Always fetch the latest questions and currentQuestionId from Firebase before advancing
+            Promise.all([
+                database.ref('questions').once('value'),
+                database.ref('gameState/currentQuestion').once('value')
+            ]).then(([questionsSnap, currentQSnap]) => {
+                const questionsObj = questionsSnap.val() || {};
+                const currentQ = currentQSnap.val();
+                const qKeys = Object.keys(questionsObj).sort((a, b) => {
+                    // Sort by q<number>
+                    const nA = parseInt(a.replace(/\D/g, ''));
+                    const nB = parseInt(b.replace(/\D/g, ''));
+                    return nA - nB;
+                });
+                let nextQ = null;
+                if (!currentQ) {
+                    // If no current question, start from the first
+                    nextQ = qKeys[0];
+                } else {
+                    // Find the index of the current question and go to the next
+                    const idx = qKeys.indexOf(currentQ);
+                    if (idx !== -1 && idx < qKeys.length - 1) {
+                        nextQ = qKeys[idx + 1];
+                    }
+                }
+                if (nextQ) {
+                    activateQuestionDirect(nextQ);
+                    displayActiveQuestion(); // Force update immediately after activating next question
+                    // Wait for Firebase to update gameState/currentQuestion, then refresh UI
+                    const ref = database.ref('gameState/currentQuestion');
+                    const handler = (snap) => {
+                        if (snap.val() === nextQ) {
+                            displayActiveQuestion();
+                            ref.off('value', handler);
+                        }
+                    };
+                    ref.on('value', handler);
+                } else {
+                    showMessage('No more questions to activate.', 'info');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

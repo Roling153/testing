@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App - Student</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 50px 30px 30px;
+            text-align: center;
+        }
+
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 30px 30px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .roll-input-section {
+            margin-bottom: 30px;
+        }
+
+        .roll-input-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .input-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            margin-bottom: 0;
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .waiting-section {
+            display: none;
+            padding: 20px;
+        }
+
+        .waiting-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .student-team-label {
+            color: #667eea;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 10px 0;
+            border: 1px solid #e0e0e0;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: -10px;
+        }
+
+        .pulse {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 20px auto;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .question-section {
+            display: none;
+            padding: 20px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .question-number {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .timer {
+            font-weight: 600;
+            color: #e74c3c;
+            font-size: 1.1rem;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .option.multiple-selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .option.multiple-selected::after {
+            content: "✓";
+            float: right;
+            font-weight: bold;
+        }
+
+        .numerical-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .numerical-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .submit-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .leaderboard-section {
+            display: none;
+            padding: 20px;
+        }
+
+        .leaderboard-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .leaderboard-toggle button {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 1px solid #667eea;
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .leaderboard-toggle button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .leaderboard-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .leaderboard {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .leaderboard-item.current-user {
+            background: #e3f2fd;
+            border: 2px solid #667eea;
+        }
+
+        .rank {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .score {
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .status-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 40px 20px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Speed Math Challenge</h1>
+            <p>Mobile Quiz Application</p>
+        </div>
+
+        <div class="content">
+
+            <div class="content">
+            <!-- Loading Screen -->
+            <div class="loading-screen" id="loadingScreen">
+                <div class="loading-spinner"></div>
+                <p>Loading...</p>
+            </div>
+
+            <!-- Roll Number Input Section -->
+            <div class="roll-input-section" id="rollInputSection">
+                <h2>Enter Your Roll Number & Name</h2>
+                <div class="input-group">
+                    <input type="text" id="rollNumberInput" placeholder="Enter your roll number" maxlength="10">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="studentNameInput" placeholder="Enter your name" maxlength="30">
+                </div>
+                <div class="input-group">
+                    <select id="teamSelect">
+                        <option value="">Select your team</option>
+                    </select>
+                </div>
+                <button class="btn" id="joinQuizBtn" onclick="joinQuiz()">Join Quiz</button>
+            </div>
+
+            <!-- Waiting Section -->
+            <div class="waiting-section" id="waitingSection">
+                <h2>Welcome, <span id="studentName"></span>!</h2>
+                <div id="studentTeamName" class="student-team-label"></div>
+                <div class="pulse"></div>
+                <p>Waiting for the quiz to start...</p>
+                <p><small>Your teacher will activate questions one by one</small></p>
+            </div>
+
+            <!-- Question Section -->
+            <div class="question-section" id="questionSection">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1</div>
+                    <div class="timer" id="timer">30s</div>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Question will appear here...
+                </div>
+                
+                <div class="options" id="optionsContainer">
+                    <!-- Options will be populated here -->
+                </div>
+                
+                <div class="submit-section">
+                    <button class="btn" id="submitAnswerBtn" onclick="submitAnswer()" disabled>Select an answer</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard Section -->
+            <div class="leaderboard-section" id="leaderboardSection">
+                <div class="leaderboard-toggle">
+                    <button id="showIndividualBtn" class="active" onclick="showLeaderboard('individual')">Individual</button>
+                    <button id="showTeamBtn" onclick="showLeaderboard('team')">Team</button>
+                </div>
+                <h2 id="leaderboardTitle">🏆 Leaderboard</h2>
+                <div class="leaderboard" id="leaderboard">
+                    <!-- Leaderboard items will be populated here -->
+                </div>
+                <div class="leaderboard" id="teamLeaderboard" style="display:none;"></div>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration (Replace with your config)
+        const firebaseConfig = {
+        apiKey: "AIzaSyB5RLgd5vMa2BTNrqlEg4ZqjeiyOSZZftQ",
+        authDomain: "testproject1-80fac.firebaseapp.com",
+        databaseURL: "https://testproject1-80fac-default-rtdb.firebaseio.com",
+        projectId: "testproject1-80fac",
+        storageBucket: "testproject1-80fac.firebasestorage.app",
+        messagingSenderId: "921713454709",
+        appId: "1:921713454709:web:4ca9c3c049f6ff91df923c"
+        };
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Global variables
+        let currentUser = null;
+        let currentQuestion = null;
+        let selectedAnswer = null;
+        let questionType = 'single'; // Track current question type
+        let timeLeft = 30;
+        let timerInterval = null;
+        let hasSubmitted = false;
+
+        // Join Quiz Function
+        function joinQuiz() {
+            const rollNumber = document.getElementById('rollNumberInput').value.trim();
+            const studentName = document.getElementById('studentNameInput').value.trim();
+            const team = document.getElementById('teamSelect').value;
+            
+            if (!rollNumber) {
+                showMessage('Please enter your roll number', 'error');
+                return;
+            }
+            if (!studentName) {
+                showMessage('Please enter your name', 'error');
+                return;
+            }
+            if (!team) {
+                showMessage('Please select your team', 'error');
+                return;
+            }
+
+            // Check if roll number already exists
+            database.ref('students/' + rollNumber).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    // Check if this is the same browser reconnecting
+                    const storedRollNumber = localStorage.getItem('quizRollNumber');
+                    if (storedRollNumber === rollNumber) {
+                        // Same browser reconnecting - allow it
+                        proceedWithLogin(rollNumber, snapshot.val());
+                        return;
+                    } else {
+                        showMessage('Roll number already taken! Please use a different one.', 'error');
+                        return;
+                    }
+                }
+
+                // New student - register them
+                currentUser = {
+                    rollNumber: rollNumber,
+                    name: studentName,
+                    team: team,
+                    score: 0,
+                    joinedAt: new Date().toISOString()
+                };
+
+                database.ref('students/' + rollNumber).set(currentUser)
+                    .then(() => {
+                        proceedWithLogin(rollNumber, currentUser);
+                    })
+                    .catch((error) => {
+                        showMessage('Error joining quiz: ' + error.message, 'error');
+                    });
+            });
+        }
+
+        // Helper function to handle successful login
+        function proceedWithLogin(rollNumber, userData) {
+            currentUser = userData;
+            currentUser.rollNumber = rollNumber; // Ensure roll number is set
+            
+            // Store in localStorage for recovery
+            localStorage.setItem('quizRollNumber', rollNumber);
+            
+            document.getElementById('studentName').textContent = currentUser.name;
+            // Show team name
+            if (currentUser.team) {
+                // Fetch team name from Firebase
+                firebase.database().ref('teams/' + currentUser.team).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        document.getElementById('studentTeamName').textContent = 'Team: ' + snapshot.val().name;
+                    } else {
+                        document.getElementById('studentTeamName').textContent = '';
+                    }
+                });
+            } else {
+                document.getElementById('studentTeamName').textContent = '';
+            }
+            showSection('waitingSection');
+            listenForQuestions();
+            listenForLeaderboard();
+            showMessage('Successfully joined the quiz!', 'success');
+        }
+
+        // Listen for active questions
+        function listenForQuestions() {
+    database.ref('gameState/currentQuestion').on('value', (snapshot) => {
+        const questionId = snapshot.val();
+        if (questionId) {
+            loadQuestion(questionId);
+        } else {
+            // No current question - show waiting area
+            showSection('waitingSection');
+        }
+    });
+}
+
+        function listenForQuizState() {
+    database.ref('gameState/quizActive').on('value', (snapshot) => {
+        const quizActive = snapshot.val();
+        if (quizActive === false) {
+            handleQuizReset();
+        }
+    });
+}
+
+        function loadQuestion(questionId) {
+            // Use single database call with combined path
+            database.ref().once('value', (snapshot) => {
+                const data = snapshot.val();
+                const question = data.questions?.[questionId];
+                const startTime = data.gameState?.questionStartTime;
+                const existingResponse = data.responses?.[questionId]?.[currentUser.rollNumber];
+                
+                // Check if question exists and is active
+                if (!question || !question.active || !startTime) {
+                    console.log('Question not active or doesn\'t exist');
+                    return;
+                }
+
+                // Calculate remaining time based on server timestamp
+                const totalTime = question.timeLimit || 30;
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                const timeLeft = Math.max(0, totalTime - elapsedTime);
+
+                // If time is already up, don't show the question
+                if (timeLeft <= 0) {
+                    showMessage('Time is up for this question!', 'error');
+                    setTimeout(() => {
+                        showSection('leaderboardSection');
+                    }, 1000);
+                    return;
+                }
+
+                // Check if already answered
+                if (existingResponse) {
+                    showMessage('You have already answered this question!', 'error');
+                    setTimeout(() => {
+                        showSection('leaderboardSection');
+                    }, 1000);
+                    return;
+                }
+                
+                // All checks passed - display the question immediately
+                displayQuestion(questionId, question, startTime);
+            });
+        }
+
+        function handleQuizReset() {
+    // Clear any stored session data related to current quiz
+    currentQuestion = null;
+    selectedAnswer = null;
+    hasSubmitted = false;
+    clearInterval(timerInterval);
+    
+    // Reset UI
+    showSection('waitingSection');
+    showMessage('Quiz has been reset. Waiting for new questions...', 'success');
+}
+
+
+
+        // Display question on screen
+        function displayQuestion(questionId, question, startTime) {
+           currentQuestion = { id: questionId, ...question };
+            selectedAnswer = null;
+            hasSubmitted = false;
+            questionType = question.type || 'single'; // Get question type
+
+            // Calculate remaining time based on server timestamp
+            const totalTime = question.timeLimit || 30;
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            timeLeft = Math.max(0, totalTime - elapsedTime);
+
+            // If time is already up, don't show the question
+            if (timeLeft <= 0) {
+                showMessage('Time is up for this question!', 'error');
+                setTimeout(() => {
+                    showSection('leaderboardSection');
+                }, 2000);
+                return;
+            }
+
+            // Update UI
+            document.getElementById('questionNumber').textContent = `Question ${questionId.replace('q', '')}`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            // Create options based on question type
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            if (questionType === 'numerical') {
+                // Create numerical input
+                const inputElement = document.createElement('input');
+                inputElement.type = 'number';
+                inputElement.className = 'numerical-input';
+                inputElement.placeholder = 'Enter your numerical answer';
+                inputElement.step = 'any'; // Allow decimals
+                inputElement.oninput = () => selectNumericalAnswer(inputElement.value);
+                optionsContainer.appendChild(inputElement);
+            } else {
+                // Create options for single/multiple choice
+                question.options.forEach((option, index) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                    optionElement.onclick = () => selectOption(index, optionElement);
+                    optionsContainer.appendChild(optionElement);
+                });
+            }
+
+            // Reset submit button
+            const submitBtn = document.getElementById('submitAnswerBtn');
+            submitBtn.disabled = true;
+            if (questionType === 'numerical') {
+                submitBtn.textContent = 'Enter your answer';
+            } else if (questionType === 'multiple') {
+                submitBtn.textContent = 'Select answers';
+            } else {
+                submitBtn.textContent = 'Select an answer';
+            }
+
+            // Start timer
+            startTimer();
+            
+            // Show question section
+            showSection('questionSection');
+        }
+
+        // Select option
+        function selectOption(index, element) {
+            if (hasSubmitted) return;
+
+            if (questionType === 'multiple') {
+                // Handle multiple choice
+                if (selectedAnswer === null) {
+                    selectedAnswer = [];
+                }
+                
+                const isSelected = selectedAnswer.includes(index);
+                if (isSelected) {
+                    // Remove selection
+                    selectedAnswer = selectedAnswer.filter(i => i !== index);
+                    element.classList.remove('multiple-selected');
+                } else {
+                    // Add selection
+                    selectedAnswer.push(index);
+                    element.classList.add('multiple-selected');
+                }
+                
+                // Enable submit button if at least one selected
+                const submitBtn = document.getElementById('submitAnswerBtn');
+                submitBtn.disabled = selectedAnswer.length === 0;
+                submitBtn.textContent = selectedAnswer.length > 0 ? 'Submit Answer' : 'Select answers';
+                
+            } else {
+                // Handle single choice
+                // Remove previous selection
+                document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selection
+                element.classList.add('selected');
+                selectedAnswer = index;
+                
+                // Enable submit button
+                const submitBtn = document.getElementById('submitAnswerBtn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Answer';
+            }
+        }
+
+        // Handle numerical answer input
+        function selectNumericalAnswer(value) {
+            if (hasSubmitted) return;
+
+            const numValue = parseFloat(value);
+            if (value.trim() === '' || isNaN(numValue)) {
+                selectedAnswer = null;
+                const submitBtn = document.getElementById('submitAnswerBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Enter your answer';
+            } else {
+                selectedAnswer = numValue;
+                const submitBtn = document.getElementById('submitAnswerBtn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Answer';
+            }
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            if (selectedAnswer === null || hasSubmitted) return;
+            if (questionType === 'multiple' && selectedAnswer.length === 0) return;
+
+            hasSubmitted = true;
+            clearInterval(timerInterval);
+
+            const totalTime = currentQuestion.timeLimit || 30;
+            const timeTaken = totalTime - timeLeft;
+
+            // 1. Determine correctness
+            let correct = false;
+            if (questionType === 'single') {
+                correct = selectedAnswer === currentQuestion.correctAnswer;
+            } else if (questionType === 'multiple') {
+                const isEqual = (a, b) =>
+                    Array.isArray(a) &&
+                    Array.isArray(b) &&
+                    a.length === b.length &&
+                    a.every(val => b.includes(val));
+                correct = isEqual(selectedAnswer.sort(), currentQuestion.correctAnswer.sort());
+            } else if (questionType === 'numerical') {
+                correct = parseFloat(selectedAnswer) === parseFloat(currentQuestion.correctAnswer);
+            }
+
+            const response = {
+                answer: selectedAnswer,
+                timestamp: new Date().toISOString(),
+                timeTaken: timeTaken,
+                rollNumber: currentUser.rollNumber,
+                correct: correct
+            };
+
+            // 2. Save response
+            database.ref('responses/' + currentQuestion.id + '/' + currentUser.rollNumber).set(response)
+                .then(() => {
+                    showMessage('Answer submitted successfully!', 'success');
+                    document.getElementById('submitAnswerBtn').textContent = 'Submitted ✓';
+                    document.getElementById('submitAnswerBtn').disabled = true;
+
+                    // 3. Award points only if correct
+                    if (correct) {
+                        const points = 1;
+                        database.ref('students/' + currentUser.rollNumber + '/score').transaction((currentScore) => {
+                            return (currentScore || 0) + points;
+                        });
+                    } else {
+                        // Deduct 1 point for wrong answer or timeout
+                        const points = 0;
+                        database.ref('students/' + currentUser.rollNumber + '/score').transaction((currentScore) => {
+                            return (currentScore || 0) + points;
+                        });
+                    }
+
+                    // 4. Show leaderboard
+                    setTimeout(() => {
+                        showSection('leaderboardSection');
+                    }, 3000);
+                })
+                .catch((error) => {
+                    showMessage('Error submitting answer: ' + error.message, 'error');
+                    hasSubmitted = false;
+                });
+        }
+
+
+        // Start timer
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (!hasSubmitted) {
+                        showMessage('Time up! Auto-submitting...', 'error');
+                        if (selectedAnswer !== null && 
+                            (questionType !== 'multiple' || selectedAnswer.length > 0)) {
+                            submitAnswer();
+                        } else {
+                            showMessage('No answer selected. Moving to next question.', 'error');
+                            setTimeout(() => {
+                                showSection('leaderboardSection');
+                            }, 2000);
+                        }
+                    }
+                }
+            }, 1000);
+        }
+
+        // Listen for leaderboard updates
+        function listenForLeaderboard() {
+            database.ref('students').on('value', (snapshot) => {
+                const students = snapshot.val() || {};
+                updateLeaderboard(students);
+                updateTeamLeaderboard(students);
+            });
+           // Listen for teams
+           database.ref('teams').on('value', (snapshot) => {
+               window._teams = snapshot.val() || {};
+               // If students already loaded, update team leaderboard
+               if (window._studentsForTeamLB) {
+                   updateTeamLeaderboard(window._studentsForTeamLB);
+               }
+           });
+        }
+
+        // Update leaderboard display
+        function updateLeaderboard(students) {
+            window._studentsForTeamLB = students;
+            const leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = '';
+
+            // Sort students by score
+            const sortedStudents = Object.entries(students)
+                .sort(([,a], [,b]) => (b.score || 0) - (a.score || 0))
+                .slice(0, 10); // Top 10
+
+            sortedStudents.forEach(([rollNumber, student], index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                
+                if (rollNumber === currentUser.rollNumber) {
+                    item.classList.add('current-user');
+                }
+
+                item.innerHTML = `
+                    <div>
+                        <span class="rank">#${index + 1}</span>
+                        <span>${student.name}</span>
+                    </div>
+                    <div class="score">${student.score || 0} pts</div>
+                `;
+                
+                leaderboard.appendChild(item);
+            });
+        }
+
+        // Team leaderboard logic
+        function updateTeamLeaderboard(students) {
+            const teamLeaderboard = document.getElementById('teamLeaderboard');
+            const teams = window._teams || {};
+            // Aggregate team scores
+            const teamMap = {};
+            Object.entries(teams).forEach(([teamKey, teamObj]) => {
+                teamMap[teamKey] = {
+                    name: teamObj.name,
+                    totalScore: 0,
+                    members: []
+                };
+            });
+            Object.entries(students).forEach(([roll, student]) => {
+                if (student.team && teamMap[student.team]) {
+                    teamMap[student.team].totalScore += student.score || 0;
+                    teamMap[student.team].members.push(student);
+                }
+            });
+            // Convert to array and sort by totalScore desc
+            const sortedTeams = Object.values(teamMap).sort((a, b) => b.totalScore - a.totalScore);
+            // Render
+            teamLeaderboard.innerHTML = '';
+            sortedTeams.forEach((team, i) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                // Highlight if current user is in this team
+                if (team.members.some(m => m.rollNumber === currentUser.rollNumber)) {
+                    item.classList.add('current-user');
+                }
+                item.innerHTML = `
+                    <div>
+                        <span class="rank">#${i + 1}</span>
+                        <span>${team.name}</span>
+                    </div>
+                    <div class="score">${team.totalScore} pts</div>
+                `;
+                teamLeaderboard.appendChild(item);
+            });
+        }
+
+        // Toggle leaderboard view
+        function showLeaderboard(type) {
+            const indBtn = document.getElementById('showIndividualBtn');
+            const teamBtn = document.getElementById('showTeamBtn');
+            const leaderboard = document.getElementById('leaderboard');
+            const teamLeaderboard = document.getElementById('teamLeaderboard');
+            const title = document.getElementById('leaderboardTitle');
+            if (type === 'individual') {
+                leaderboard.style.display = '';
+                teamLeaderboard.style.display = 'none';
+                indBtn.classList.add('active');
+                teamBtn.classList.remove('active');
+                title.textContent = '🏆 Leaderboard';
+            } else {
+                leaderboard.style.display = 'none';
+                teamLeaderboard.style.display = '';
+                indBtn.classList.remove('active');
+                teamBtn.classList.add('active');
+                title.textContent = '👥 Team Leaderboard';
+            }
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            const sections = ['loadingScreen', 'rollInputSection', 'waitingSection', 'questionSection', 'leaderboardSection'];
+            sections.forEach(id => {
+                document.getElementById(id).style.display = id === sectionId ? 'block' : 'none';
+            });
+        }
+
+        // Show status message
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'status-message'}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show loading screen immediately
+            showSection('loadingScreen');
+            
+
+            // Load teams for dropdown ONLY from the realtime listener
+            let restoreTeamValue = null;
+            function populateTeamsDropdown(selectedTeam) {
+                const teamSelect = document.getElementById('teamSelect');
+                // Remove all options first
+                while (teamSelect.firstChild) teamSelect.removeChild(teamSelect.firstChild);
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = 'Select your team';
+                teamSelect.appendChild(defaultOpt);
+                firebase.database().ref('teams').once('value', (snapshot) => {
+                    const teams = snapshot.val() || {};
+                    if (Object.keys(teams).length === 0) {
+                        teamSelect.innerHTML = '<option value="">No teams available</option>';
+                        teamSelect.disabled = true;
+                    } else {
+                        Object.entries(teams).forEach(([key, team]) => {
+                            const opt = document.createElement('option');
+                            opt.value = key;
+                            opt.textContent = team.name;
+                            teamSelect.appendChild(opt);
+                        });
+                        teamSelect.disabled = false;
+                        // Restore selected value if needed
+                        if (restoreTeamValue) {
+                            teamSelect.value = restoreTeamValue;
+                            restoreTeamValue = null;
+                        } else if (selectedTeam) {
+                            teamSelect.value = selectedTeam;
+                        }
+                    }
+                });
+            }
+            // Listen for team changes in realtime
+            firebase.database().ref('teams').on('value', () => populateTeamsDropdown());
+
+            // Check for existing session immediately
+            const storedRollNumber = localStorage.getItem('quizRollNumber');
+            if (storedRollNumber) {
+                // Try to recover session quickly
+                database.ref('students/' + storedRollNumber).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        // Auto-login with stored roll number
+                        document.getElementById('rollNumberInput').value = storedRollNumber;
+                        // Also fill name if available
+                        if (snapshot.val().name) {
+                            document.getElementById('studentNameInput').value = snapshot.val().name;
+                        }
+                        // Store team to restore after dropdown is populated
+                        if (snapshot.val().team) {
+                            restoreTeamValue = snapshot.val().team;
+                        }
+                        proceedWithLogin(storedRollNumber, snapshot.val());
+                    } else {
+                        // Stored roll number no longer exists, clear it
+                        localStorage.removeItem('quizRollNumber');
+                        showSection('rollInputSection');
+                    }
+                });
+            } else {
+                showSection('rollInputSection');
+            }
+        });
+    </script>
+</body>
+</html>
