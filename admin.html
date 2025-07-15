@@ -1233,7 +1233,7 @@
                     database.ref('gameState').once('value', (snapshot) => {
                         const gs = snapshot.val() || {};
                         if (gs.questionStartTime) {
-                            updateActiveQuestionTimer(gs.questionStartTime, question.timeLimit || 30);
+                            updateActiveQuestionTimer(gs.questionStartTime, question.timeLimit || 10);
                         } else {
                             timerSpan.textContent = '';
                         }
