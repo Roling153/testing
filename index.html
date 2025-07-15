@@ -506,9 +506,10 @@
         let hasSubmitted = false;
         // Add server time offset for accurate timer sync
         let serverTimeOffset = 0;
-        // Listen for server time offset from Firebase
+        let serverTimeReady = false;
         firebase.database().ref("/.info/serverTimeOffset").on("value", function(snapshot) {
             serverTimeOffset = snapshot.val() || 0;
+            serverTimeReady = true;
         });
         // Helper to get current server time
         function getServerTime() {
@@ -619,6 +620,11 @@
 }
 
         function loadQuestion(questionId) {
+            if (!serverTimeReady) {
+                // Wait and try again in 100ms
+                setTimeout(() => loadQuestion(questionId), 100);
+                return;
+            }
             // Use single database call with combined path
             database.ref().once('value', (snapshot) => {
                 const data = snapshot.val();
