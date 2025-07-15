@@ -504,6 +504,18 @@
         let timeLeft = 30;
         let timerInterval = null;
         let hasSubmitted = false;
+        // Add server time offset
+        let serverTimeOffset = 0;
+
+        // Listen for server time offset from Firebase
+        firebase.database().ref("/.info/serverTimeOffset").on("value", function(snapshot) {
+            serverTimeOffset = snapshot.val() || 0;
+        });
+
+        // Helper to get current server time
+        function getServerTime() {
+            return Date.now() + serverTimeOffset;
+        }
 
         // Join Quiz Function
         function joinQuiz() {
@@ -624,7 +636,7 @@
 
                 // Calculate remaining time based on server timestamp
                 const totalTime = question.timeLimit || 30;
-                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                const elapsedTime = Math.floor((getServerTime() - startTime) / 1000);
                 const timeLeft = Math.max(0, totalTime - elapsedTime);
 
                 // If time is already up, don't show the question
@@ -673,7 +685,7 @@
 
             // Calculate remaining time based on server timestamp
             const totalTime = question.timeLimit || 30;
-            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const elapsedTime = Math.floor((getServerTime() - startTime) / 1000);
             timeLeft = Math.max(0, totalTime - elapsedTime);
 
             // If time is already up, don't show the question
