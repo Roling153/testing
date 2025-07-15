@@ -998,11 +998,10 @@
             });
 
             // Activate current question
-            // Activate current question
             updates['questions/' + editingQuestionId + '/active'] = true;
             updates['gameState/currentQuestion'] = editingQuestionId;
             updates['gameState/active'] = true;
-            updates['gameState/questionStartTime'] = Date.now();
+            updates['gameState/questionStartTime'] = firebase.database.ServerValue.TIMESTAMP;
 
             database.ref().update(updates)
                 .then(() => {
@@ -1429,7 +1428,7 @@ function updateQuestionList() {
             updates['gameState/currentQuestion'] = questionId;
             updates['gameState/active'] = true;
             updates['gameState/quizActive'] = true;  // ADD THIS - signals quiz is active
-            updates['gameState/questionStartTime'] = Date.now();
+            updates['gameState/questionStartTime'] = firebase.database.ServerValue.TIMESTAMP;
 
             database.ref().update(updates)
                 .then(() => {
