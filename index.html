@@ -632,9 +632,19 @@
                     return;
                 }
 
-                // Always start timer at full time limit for each student
+                // Calculate remaining time based on server's question start time
                 const totalTime = question.timeLimit || 30;
-                const timeLeft = totalTime;
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                const timeLeft = Math.max(0, totalTime - elapsedTime);
+
+                // If time is already up, don't show the question
+                if (timeLeft <= 0) {
+                    showMessage('Time is up for this question!', 'error');
+                    setTimeout(() => {
+                        showSection('leaderboardSection');
+                    }, 1000);
+                    return;
+                }
 
                 // If already answered
                 if (existingResponse) {
@@ -671,9 +681,10 @@
             hasSubmitted = false;
             questionType = question.type || 'single'; // Get question type
 
-            // Always start timer at full time limit for each student
+            // Calculate remaining time based on server's question start time
             const totalTime = question.timeLimit || 30;
-            timeLeft = totalTime;
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            timeLeft = Math.max(0, totalTime - elapsedTime);
 
             // If time is already up, don't show the question
             if (timeLeft <= 0) {
