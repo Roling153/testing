@@ -1746,6 +1746,14 @@ function updateStudentGrid() {
             }, 5000);
         }
 
+        // Add server time offset logic for accurate timer sync
+        let serverTimeOffset = 0;
+        firebase.database().ref('/.info/serverTimeOffset').on('value', function(snapshot) {
+            serverTimeOffset = snapshot.val() || 0;
+        });
+        function getServerTime() {
+            return Date.now() + serverTimeOffset;
+        }
         // Timer for active question
         let activeQuestionTimerInterval = null;
         function updateActiveQuestionTimer(startTime, timeLimit) {
@@ -1753,7 +1761,7 @@ function updateStudentGrid() {
             if (!timerSpan) return;
             if (activeQuestionTimerInterval) clearInterval(activeQuestionTimerInterval);
             function update() {
-                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const elapsed = Math.floor((getServerTime() - startTime) / 1000);
                 const left = Math.max(0, timeLimit - elapsed);
                 timerSpan.textContent = `Time Left: ${left}s`;
                 if (left <= 0) {
